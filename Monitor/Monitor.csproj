@@ -81,7 +81,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collections\Pair.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,12 +89,13 @@
     </Compile>
     <Compile Include="GUI\ProgressBar.cs" />
     <Compile Include="GUI\Util.cs" />
+    <Compile Include="Hardware\Nvidia.cs" />
+    <Compile Include="OpenHardwareMonitor\Collections\Pair.cs" />
     <Compile Include="Hardware\CPU.cs" />
     <Compile Include="Hardware\GPU.cs" />
     <Compile Include="Hardware\Memory.cs" />
-    <Compile Include="Hardware\NVAPI.cs" />
-    <Compile Include="Hardware\Nvidia.cs" />
-    <Compile Include="Hardware\PInvokeDelegateFactory.cs" />
+    <Compile Include="OpenHardwareMonitor\Nvidia\NVAPI.cs" />
+    <Compile Include="OpenHardwareMonitor\PInvokeDelegateFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="GUI\MainForm.resx">

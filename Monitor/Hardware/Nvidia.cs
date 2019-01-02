@@ -2,15 +2,25 @@
 using System.Collections.Generic;
 using OpenHardwareMonitor.Hardware.Nvidia;
 
-
 namespace Monitor.Hardware
 {
     class Nvidia
     {
+        public string Name { get; private set; }
+        private readonly NvPhysicalGpuHandle _handle;
+        private readonly NvDisplayHandle? _displayHandle;
 
-        public string name = "";
-        private readonly NvPhysicalGpuHandle handle;
-        private readonly NvDisplayHandle? displayHandle;
+        public uint TotalMem { get; private set; }
+        public uint FreeMem { get; private set; }
+        public uint UsedMem { get; private set; }
+        public float LoadMemPct { get; private set; }
+
+        public uint TotalMemMb { get; private set; }
+        public uint FreeMemMb { get; private set; }
+        public uint UsedMemMb { get; private set; }
+
+        public int LoadPct { get; private set; }
+        public float Temperature { get; private set; }
 
         public Nvidia()
         {
@@ -62,29 +72,17 @@ namespace Monitor.Hardware
             if (count > 1) Console.WriteLine("only suppoert 1 GUP");
 
             displayHandles.TryGetValue(handles[0], out displayHandle);
-            this.handle = handles[0];
-            this.displayHandle = displayHandle;
-            this.name = GetName(this.handle);
+            this._handle = handles[0];
+            this._displayHandle = displayHandle;
+            this.Name = GetName(this._handle);
         }
 
+        float _coreClock = 0;
+        float _memoryClock = 0;
+        float _shaderClock = 0;
 
-        public uint totalMem = 0;
-        public uint freeMem = 0;
-        public uint usedMem = 0;
-        public float loadMemPct = 0;
-
-        public uint totalMemMb = 0;
-        public uint freeMemMb = 0;
-        public uint usedMemMb = 0;
-
-        public int loadPct = 0;
-        public float temperature = 0;
-
-        public void update()
+        public void Update()
         {
-            float _coreClock = 0;
-            float _memoryClock = 0;
-            float _shaderClock = 0;
             uint[] values = GetClocks();
             if (values != null)
             {
@@ -110,24 +108,24 @@ namespace Monitor.Hardware
             NvMemoryInfo memoryInfo = new NvMemoryInfo();
             memoryInfo.Version = NVAPI.GPU_MEMORY_INFO_VER;
             memoryInfo.Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU];
-            if (NVAPI.NvAPI_GPU_GetMemoryInfo != null && displayHandle.HasValue &&
-              NVAPI.NvAPI_GPU_GetMemoryInfo(displayHandle.Value, ref memoryInfo) ==
+            if (NVAPI.NvAPI_GPU_GetMemoryInfo != null && _displayHandle.HasValue &&
+              NVAPI.NvAPI_GPU_GetMemoryInfo(_displayHandle.Value, ref memoryInfo) ==
               NvStatus.OK)
             {
-                totalMem = memoryInfo.Values[0];
-                totalMemMb = totalMem / 1024;
-                freeMem  = memoryInfo.Values[4];
-                freeMemMb = freeMem / 1024;
-                usedMem  = Math.Max(totalMem - freeMem, 0);
-                usedMemMb = usedMem / 1024;
-                loadMemPct = 100.0f * usedMem / totalMem;
+                TotalMem = memoryInfo.Values[0];
+                TotalMemMb = TotalMem / 1024;
+                FreeMem  = memoryInfo.Values[4];
+                FreeMemMb = FreeMem / 1024;
+                UsedMem  = Math.Max(TotalMem - FreeMem, 0);
+                UsedMemMb = UsedMem / 1024;
+                LoadMemPct = 100.0f * UsedMem / TotalMem;
             }
 
 
             NvPStates states = new NvPStates();
             states.Version = NVAPI.GPU_PSTATES_VER;
             states.PStates = new NvPState[NVAPI.MAX_PSTATES_PER_GPU];
-            if (NVAPI.NvAPI_GPU_GetPStates != null && NVAPI.NvAPI_GPU_GetPStates(handle, ref states) == NvStatus.OK)
+            if (NVAPI.NvAPI_GPU_GetPStates != null && NVAPI.NvAPI_GPU_GetPStates(_handle, ref states) == NvStatus.OK)
             {
                 /*
                 0: Core
@@ -137,7 +135,7 @@ namespace Monitor.Hardware
                 for (int i = 0; i < 3; i++)
                     if (states.PStates[i].Present)
                     {
-                        loadPct = states.PStates[i].Percentage;
+                        LoadPct = states.PStates[i].Percentage;
                         break;
                         //Console.WriteLine(states.PStates[i].Percentage);
                     }
@@ -149,14 +147,13 @@ namespace Monitor.Hardware
                 NvSensor sensor = thermalSettings.Sensor[i];
                 if(sensor.Target == NvThermalTarget.GPU)
                 {
-                    temperature = sensor.CurrentTemp;
+                    Temperature = sensor.CurrentTemp;
                     //Console.WriteLine(temp);
                     break;
 
                 }
             }
         }
-
 
         private static string GetName(NvPhysicalGpuHandle handle)
         {
@@ -176,7 +173,7 @@ namespace Monitor.Hardware
             allClocks.Version = NVAPI.GPU_CLOCKS_VER;
             allClocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
             if (NVAPI.NvAPI_GPU_GetAllClocks != null &&
-              NVAPI.NvAPI_GPU_GetAllClocks(handle, ref allClocks) == NvStatus.OK)
+              NVAPI.NvAPI_GPU_GetAllClocks(_handle, ref allClocks) == NvStatus.OK)
             {
                 return allClocks.Clock;
             }
@@ -190,14 +187,12 @@ namespace Monitor.Hardware
             settings.Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU;
             settings.Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU];
             if (!(NVAPI.NvAPI_GPU_GetThermalSettings != null &&
-              NVAPI.NvAPI_GPU_GetThermalSettings(handle, (int)NvThermalTarget.ALL,
+              NVAPI.NvAPI_GPU_GetThermalSettings(_handle, (int)NvThermalTarget.ALL,
                 ref settings) == NvStatus.OK))
             {
                 settings.Count = 0;
             }
             return settings;
         }
-
-
     }
 }

@@ -3,25 +3,23 @@
     class GPU
     {
         private Nvidia _nvidia;
-        public string Name { get { return _nvidia.name; } }
-        public uint totalMemMb { get { return _nvidia.totalMemMb; } }
-        public uint freeMemMb { get { return _nvidia.freeMemMb; } }
-        public uint usedMemMb { get { return _nvidia.usedMemMb; } }
-        public float loadMemPct { get { return _nvidia.loadMemPct; } }
-        public float loadPct { get { return _nvidia.loadPct; } }
-        public float temperature { get { return _nvidia.temperature; } }
+        public string Name { get { return _nvidia.Name; } }
+        public uint TotalMemMb { get { return _nvidia.TotalMemMb; } }
+        public uint FreeMemMb { get { return _nvidia.FreeMemMb; } }
+        public uint UsedMemMb { get { return _nvidia.UsedMemMb; } }
+        public float LoadMemPct { get { return _nvidia.LoadMemPct; } }
+        public float LoadPct { get { return _nvidia.LoadPct; } }
+        public float Temperature { get { return _nvidia.Temperature; } }
 
         public GPU()
         {
             _nvidia = new Nvidia();
-
         }
 
-        public void update()
+        public void Update()
         {
-            _nvidia.update();
+            _nvidia.Update();
 
         }
-
     }
 }
