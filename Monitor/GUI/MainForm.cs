@@ -30,10 +30,10 @@ namespace Monitor.GUI
             _vramBar = new ProgressBar(70, 46, 261, "Monitor.Embed.bar09.png");
             _gpuBar = new ProgressBar(64, 42, 208, "Monitor.Embed.bar10.png");
             _cpuBar = new ProgressBar(64, 42, 23, "Monitor.Embed.bar00.png");
-            _cpuCoreBars = new ProgressBar[_cpu.coreCnt];
+            _cpuCoreBars = new ProgressBar[_cpu.CoreCnt];
             int y = 97;
             string imgName;
-            for (int i=0; i < _cpu.coreCnt; i++)
+            for (int i=0; i < _cpu.CoreCnt; i++)
             {
                 imgName = "Monitor.Embed.bar0" + (i + 1).ToString() + ".png";
                 _cpuCoreBars[i] = new ProgressBar(70, 28, y, imgName);
@@ -70,17 +70,17 @@ namespace Monitor.GUI
         {
             g.DrawImageUnscaled(_logoCPU, 5, 5);
             g.DrawString("CPU Usage", _fntTitle, Brushes.White, 40, 5);
-            g.DrawString(((uint)_cpu.loadTotal).ToString() + "%", _fntUsage, Brushes.White, 115, 18);
+            g.DrawString(((uint)_cpu.LoadTotal).ToString() + "%", _fntUsage, Brushes.White, 115, 18);
 
-            _cpuBar.draw(g, (uint)_cpu.loadTotal);
+            _cpuBar.draw(g, (uint)_cpu.LoadTotal);
             g.DrawString(_cpu.Name, _fntLabel, Brushes.Gold, 2, 40);
 
             string pct;
-            for (int i = 0; i < _cpu.coreCnt; i++)
+            for (int i = 0; i < _cpu.CoreCnt; i++)
             {
                 g.DrawString((i + 1).ToString(), _fntLabel, Brushes.White, 10, (95 + i * 10));
-                _cpuCoreBars[i].draw(g, (uint)_cpu.loadCores[i]);
-                pct = (_cpu.loadCores[i] > 10) ? ((uint)_cpu.loadCores[i]).ToString(): "  " + ((uint)_cpu.loadCores[i]).ToString();
+                _cpuCoreBars[i].draw(g, (uint)_cpu.LoadCores[i]);
+                pct = (_cpu.LoadCores[i] > 10) ? ((uint)_cpu.LoadCores[i]).ToString(): "  " + ((uint)_cpu.LoadCores[i]).ToString();
                 pct += "%";
                 g.DrawString(pct, _fntLabel, Brushes.White, 114, (95 + i * 10));
             }
@@ -93,19 +93,19 @@ namespace Monitor.GUI
             g.DrawString("Total", _fntLabel, Brushes.AliceBlue, 100, 52);
             g.DrawString("RAM",   _fntLabel, Brushes.AliceBlue, 10, 76);
 
-            g.DrawString(_memory.usedMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 8, 62);
-            g.DrawString(_memory.freeMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 50, 62);
-            g.DrawString(_memory.totalMb.ToString() + "Mb", _fntLabel, Brushes.AliceBlue, 93, 62);
+            g.DrawString(_memory.UsedMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 8, 62);
+            g.DrawString(_memory.FreeMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 50, 62);
+            g.DrawString(_memory.TotalMb.ToString() + "Mb", _fntLabel, Brushes.AliceBlue, 93, 62);
 
-            _ramBar.draw(g, _memory.loadPct);
+            _ramBar.draw(g, _memory.LoadPct);
         }
 
         private void drawGPU(Graphics g)
         {
             g.DrawImageUnscaled(_logoGPU, 5, 190);
             g.DrawString("GPU Usage", _fntTitle, Brushes.White, 40, 188);
-            g.DrawString(((uint)_gpu.loadPct).ToString() + "%", _fntUsage, Brushes.White, 115, 203);
-            g.DrawString(((uint)_gpu.temperature).ToString() + "°", _fntUsage, Brushes.Pink, 115, 190);
+            g.DrawString(((uint)_gpu.LoadPct).ToString() + "%", _fntUsage, Brushes.White, 115, 203);
+            g.DrawString(((uint)_gpu.Temperature).ToString() + "°", _fntUsage, Brushes.Pink, 115, 190);
 
             g.DrawString(_gpu.Name, _fntLabel, Brushes.MediumSpringGreen, 5, 221);
 
@@ -114,11 +114,11 @@ namespace Monitor.GUI
             g.DrawString("Total", _fntLabel, Brushes.AliceBlue, 100, 233);
             g.DrawString("VRAM",  _fntLabel, Brushes.AliceBlue, 10, 258);
 
-            g.DrawString(_gpu.usedMemMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 8, 243);
-            g.DrawString(_gpu.freeMemMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 50, 243);
-            g.DrawString(_gpu.totalMemMb.ToString() + "Mb", _fntLabel, Brushes.AliceBlue, 93, 243);
-            _gpuBar.draw(g, (uint)_gpu.loadPct);
-            _vramBar.draw(g, (uint)_gpu.loadMemPct);
+            g.DrawString(_gpu.UsedMemMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 8, 243);
+            g.DrawString(_gpu.FreeMemMb.ToString() + "Mb",  _fntLabel, Brushes.AliceBlue, 50, 243);
+            g.DrawString(_gpu.TotalMemMb.ToString() + "Mb", _fntLabel, Brushes.AliceBlue, 93, 243);
+            _gpuBar.draw(g, (uint)_gpu.LoadPct);
+            _vramBar.draw(g, (uint)_gpu.LoadMemPct);
         }
 
 
@@ -144,9 +144,9 @@ namespace Monitor.GUI
 
         private void timer_Tick(object sender, EventArgs e)
         {
-            _memory.update();
-            _cpu.update();
-            _gpu.update();
+            _memory.Update();
+            _cpu.Update();
+            _gpu.Update();
             this.Invalidate();
         }
 

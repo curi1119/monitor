@@ -4,27 +4,24 @@ using System.Text;
 
 namespace Monitor.Hardware
 {
-
     class CPU
     {
         private PerformanceCounter _cpu;
         private PerformanceCounter[] _cores;
-        public int coreCnt;
-        public float loadTotal;
-        public float[] loadCores;
-        private string _name;
-
-        public string Name { get { return _name; } }
+        public int CoreCnt { get; private set; }
+        public float LoadTotal { get; private set; }
+        public float[] LoadCores { get; private set; }
+        public string Name { get; private set; }
 
         public CPU()
         {
-            coreCnt = Environment.ProcessorCount;
+            CoreCnt = Environment.ProcessorCount;
             _cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            _cores = new PerformanceCounter[coreCnt];
-            loadTotal = 0;
-            loadCores = new float[coreCnt];
+            _cores = new PerformanceCounter[CoreCnt];
+            LoadTotal = 0;
+            LoadCores = new float[CoreCnt];
 
-            for (var i=0; i < coreCnt; i++)
+            for (var i=0; i < CoreCnt; i++)
             {
                 _cores[i] = new PerformanceCounter("Processor", "% Processor Time", i.ToString());
             }
@@ -34,12 +31,12 @@ namespace Monitor.Hardware
             Microsoft.Win32.RegistryKey registrykeyCPU = registrykeyHKLM.OpenSubKey(keyPath, false);
             string MHz = registrykeyCPU.GetValue("~MHz").ToString();
             string processorName = (string)registrykeyCPU.GetValue("ProcessorNameString");
-            _name = buildCpuName(processorName);
+            this.Name = BuildCpuName(processorName);
             registrykeyCPU.Close();
             registrykeyHKLM.Close();
         }
 
-        private string buildCpuName(string processorName)
+        private string BuildCpuName(string processorName)
         {
             StringBuilder txBuild = new StringBuilder(processorName);
             txBuild.Replace("Intel", "");
@@ -49,12 +46,12 @@ namespace Monitor.Hardware
         }
 
 
-        public void update()
+        public void Update()
         {
-            loadTotal = _cpu.NextValue();
+            LoadTotal = _cpu.NextValue();
             for(int i=0; i < _cores.Length; i++)
             {
-                loadCores[i] = _cores[i].NextValue();
+                LoadCores[i] = _cores[i].NextValue();
             }
         }
     }

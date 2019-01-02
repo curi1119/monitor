@@ -2,7 +2,6 @@
 
 namespace Monitor.Hardware
 {
-
     class Memory
     {
         private NativeMethods.MemoryStatusEx _status;
@@ -10,17 +9,17 @@ namespace Monitor.Hardware
         private ulong _totalPhysicalMemory;
         private ulong _availablePhysicalMemory;
 
-        public uint totalMb = 0;
-        public uint usedMb  = 0;
-        public uint freeMb  = 0;
-        public uint loadPct = 0;
+        public uint TotalMb { get; private set; }
+        public uint UsedMb { get; private set; }
+        public uint FreeMb { get; private set; }
+        public uint LoadPct { get; private set; }
 
         public Memory()
         {
             _status = new NativeMethods.MemoryStatusEx();
         }
 
-        public void update()
+        public void Update()
         {
             _status.Length = checked((uint)Marshal.SizeOf(typeof(NativeMethods.MemoryStatusEx)));
             if (!NativeMethods.GlobalMemoryStatusEx(ref _status)) return;
@@ -28,10 +27,10 @@ namespace Monitor.Hardware
             _totalPhysicalMemory = _status.TotalPhysicalMemory;
             _availablePhysicalMemory = _status.AvailablePhysicalMemory;
             _usedMemory = _totalPhysicalMemory - _availablePhysicalMemory;
-            loadPct = _status.MemoryLoad;
-            totalMb = (uint)(_totalPhysicalMemory / 1024.0f / 1024.0f);
-            usedMb  = (uint)(_usedMemory / 1024.0f / 1024.0f);
-            freeMb  = (uint)(_availablePhysicalMemory / 1024.0f / 1024.0f);
+            LoadPct = _status.MemoryLoad;
+            TotalMb = (uint)(_totalPhysicalMemory / 1024.0f / 1024.0f);
+            UsedMb  = (uint)(_usedMemory / 1024.0f / 1024.0f);
+            FreeMb  = (uint)(_availablePhysicalMemory / 1024.0f / 1024.0f);
         }
 
         private class NativeMethods
