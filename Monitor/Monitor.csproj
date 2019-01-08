@@ -156,6 +156,7 @@
     <EmbeddedResource Include="Embed\bg.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Embed\bar11.png" />
     <Content Include="Embed\icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
