@@ -9,9 +9,6 @@ namespace Monitor
 {
     static class Program
     {
-
-        internal static NotifyIcon icon;
-        internal static ContextMenuStrip cms;
         /// <summary>
         /// アプリケーションのメイン エントリ ポイントです。
         /// </summary>
