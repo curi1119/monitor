@@ -34,9 +34,14 @@ namespace Monitor.GUI
             int y = 97;
             string imgName;
             string num;
+            int imgCnt = 0;
             for (int i=0; i < _cpu.CoreCnt; i++)
             {
-                num = String.Format("{0:D2}", i);
+                num = String.Format("{0:D2}", imgCnt);
+                imgCnt += 1;
+                if (imgCnt >= 12){
+                    imgCnt = 0;
+                }
                 imgName = "Monitor.Embed.bar" + num + ".png";
                 Console.Write(imgName);
                 _cpuCoreBars[i] = new ProgressBar(70, 28, y, imgName);
