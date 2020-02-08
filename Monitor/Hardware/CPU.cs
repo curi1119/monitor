@@ -6,12 +6,20 @@ namespace Monitor.Hardware
 {
     class CPU
     {
+        public enum ManufactureEnum
+        {
+            Intel,
+            AMD,
+            Unknown,
+        };
+
         private PerformanceCounter _cpu;
         private PerformanceCounter[] _cores;
         public int CoreCnt { get; private set; }
         public float LoadTotal { get; private set; }
         public float[] LoadCores { get; private set; }
         public string Name { get; private set; }
+        public ManufactureEnum Manufacture { get; private set; }
 
         public CPU()
         {
@@ -31,20 +39,46 @@ namespace Monitor.Hardware
             Microsoft.Win32.RegistryKey registrykeyCPU = registrykeyHKLM.OpenSubKey(keyPath, false);
             string MHz = registrykeyCPU.GetValue("~MHz").ToString();
             string processorName = (string)registrykeyCPU.GetValue("ProcessorNameString");
-            this.Name = BuildCpuName(processorName);
+            processorName = processorName.Trim();
+            SetCpuManufacture(processorName);
+            SetBuildCpuName(processorName);
             registrykeyCPU.Close();
             registrykeyHKLM.Close();
         }
 
-        private string BuildCpuName(string processorName)
+        private void SetCpuManufacture(string processorName)
         {
-            StringBuilder txBuild = new StringBuilder(processorName);
-            txBuild.Replace("Intel", "");
-            txBuild.Replace("(R)", "");
-            txBuild.Replace("(TM)", "");
-            return txBuild.ToString();
+            if (processorName.Contains("Intel"))
+            {
+                this.Manufacture = ManufactureEnum.Intel;
+            }
+            else if (processorName.Contains("AMD"))
+            {
+                this.Manufacture = ManufactureEnum.AMD;
+            }
+            else
+            {
+                this.Manufacture = ManufactureEnum.Unknown;
+            }
         }
 
+        private void SetBuildCpuName(string processorName)
+        {
+            StringBuilder txBuild = new StringBuilder(processorName);
+            switch (this.Manufacture)
+            {
+                case ManufactureEnum.Intel:
+                    txBuild.Replace("Intel", "");
+                    txBuild.Replace("(R)", "");
+                    txBuild.Replace("(TM)", "");
+                    break;
+                case ManufactureEnum.AMD:
+                    txBuild.Replace("AMD", "");
+                    txBuild.Replace("Processor", "");
+                    break;
+            }
+            this.Name = txBuild.ToString();
+        }
 
         public void Update()
         {

@@ -50,13 +50,13 @@ namespace Monitor.GUI
             this.timer.Enabled = true;
         }
 
-        private static Font _fntTitle = new Font("Arial", 10, FontStyle.Bold);
-        private static Font _fntUsage = new Font("Arial", 8, FontStyle.Bold);
-        private static Font _fntLabel = new Font("Arial", 7);
-        private static Image _bg = Util.getImage("Monitor.Embed.bg.png");
-        private static Image _logoCPU = Util.getImage("Monitor.Embed.logo_intel.png");
-        private static Image _logoGPU = Util.getImage("Monitor.Embed.logo_nvidia.png");
-        private static Image _horizontalLine = Util.getImage("Monitor.Embed.hr.png");
+        private static readonly Font _fntTitle = new Font("Arial", 10, FontStyle.Bold);
+        private static readonly Font _fntUsage = new Font("Arial", 8, FontStyle.Bold);
+        private static readonly Font _fntLabel = new Font("Arial", 7);
+        private static readonly Image _bg = Util.getImage("Monitor.Embed.bg.png");
+        private static Image _logoCPU;
+        private static readonly Image _logoGPU = Util.getImage("Monitor.Embed.logo_nvidia.png");
+        private static readonly Image _horizontalLine = Util.getImage("Monitor.Embed.hr.png");
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -69,12 +69,31 @@ namespace Monitor.GUI
             g.PixelOffsetMode = PixelOffsetMode.Half;
             g.InterpolationMode = InterpolationMode.NearestNeighbor;
             g.DrawImage(_horizontalLine, 8, 92, 120, 1);
-            drawCPU(g);
-            drawRAM(g);
-            drawGPU(g);
+            ApplyCpuLog();
+            DrawCPU(g);
+            DrawRAM(g);
+            DrawGPU(g);
         }
 
-        private void drawCPU(Graphics g)
+        private void ApplyCpuLog()
+        {
+            Image logo;
+            switch (_cpu.Manufacture)
+            {
+                case CPU.ManufactureEnum.Intel:
+                    logo = Util.getImage("Monitor.Embed.logo_intel.png");
+                    break;
+                case CPU.ManufactureEnum.AMD:
+                    logo = Util.getImage("Monitor.Embed.logo_ryzen.png");
+                    break;
+                default:
+                    logo = Util.getImage("Monitor.Embed.logo_unknown.png");
+                    break;
+            }
+            _logoCPU = logo;
+        }
+
+        private void DrawCPU(Graphics g)
         {
             g.DrawImageUnscaled(_logoCPU, 5, 5);
             g.DrawString("CPU Usage", _fntTitle, Brushes.White, 40, 5);
@@ -94,7 +113,7 @@ namespace Monitor.GUI
             }
         }
 
-        private void drawRAM(Graphics g)
+        private void DrawRAM(Graphics g)
         {
             g.DrawString("Used",  _fntLabel, Brushes.AliceBlue, 12, 52);
             g.DrawString("Free",  _fntLabel, Brushes.AliceBlue, 57, 52);
@@ -108,7 +127,7 @@ namespace Monitor.GUI
             _ramBar.draw(g, _memory.LoadPct);
         }
 
-        private void drawGPU(Graphics g)
+        private void DrawGPU(Graphics g)
         {
             g.DrawImageUnscaled(_logoGPU, 5, 190);
             g.DrawString("GPU Usage", _fntTitle, Brushes.White, 40, 188);
