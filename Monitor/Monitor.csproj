@@ -81,6 +81,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\CoreProgressBar.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -159,6 +160,10 @@
     <EmbeddedResource Include="Embed\logo_ryzen.png" />
     <EmbeddedResource Include="Embed\logo_unknown.png" />
     <EmbeddedResource Include="Embed\bar11.png" />
+    <EmbeddedResource Include="Embed\bar12.png" />
+    <EmbeddedResource Include="Embed\bar13.png" />
+    <EmbeddedResource Include="Embed\bar14.png" />
+    <EmbeddedResource Include="Embed\bar15.png" />
     <Content Include="Embed\icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

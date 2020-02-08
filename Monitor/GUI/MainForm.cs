@@ -16,7 +16,16 @@ namespace Monitor.GUI
         private ProgressBar _vramBar;
         private ProgressBar _gpuBar;
         private ProgressBar _cpuBar;
-        private ProgressBar[] _cpuCoreBars;
+        private CoreProgressBar[] _cpuCoreBars;
+
+        private static readonly Font _fntTitle = new Font("Arial", 10, FontStyle.Bold);
+        private static readonly Font _fntUsage = new Font("Arial", 8, FontStyle.Bold);
+        private static readonly Font _fntLabel = new Font("Arial", 7);
+        private static readonly Image _bg = Util.getImage("Monitor.Embed.bg.png");
+        private static Image _logoCPU;
+        private static readonly Image _logoGPU = Util.getImage("Monitor.Embed.logo_nvidia.png");
+        private static readonly Image _horizontalLine = Util.getImage("Monitor.Embed.hr.png");
+
 
         public MainForm()
         {
@@ -30,33 +39,44 @@ namespace Monitor.GUI
             _vramBar = new ProgressBar(70, 46, 261, "Monitor.Embed.bar09.png");
             _gpuBar = new ProgressBar(64, 42, 208, "Monitor.Embed.bar10.png");
             _cpuBar = new ProgressBar(64, 42, 23, "Monitor.Embed.bar00.png");
-            _cpuCoreBars = new ProgressBar[_cpu.CoreCnt];
-            int y = 97;
-            string imgName;
-            string num;
-            int imgCnt = 0;
-            for (int i=0; i < _cpu.CoreCnt; i++)
-            {
-                num = String.Format("{0:D2}", imgCnt);
-                imgCnt += 1;
-                if (imgCnt >= 12){
-                    imgCnt = 0;
-                }
-                imgName = "Monitor.Embed.bar" + num + ".png";
-                Console.Write(imgName);
-                _cpuCoreBars[i] = new ProgressBar(70, 28, y, imgName);
-                y += 10;
-            }
+            _cpuCoreBars = new CoreProgressBar[_cpu.CoreCnt];
+            BuildCoreProgressBar();
             this.timer.Enabled = true;
         }
 
-        private static readonly Font _fntTitle = new Font("Arial", 10, FontStyle.Bold);
-        private static readonly Font _fntUsage = new Font("Arial", 8, FontStyle.Bold);
-        private static readonly Font _fntLabel = new Font("Arial", 7);
-        private static readonly Image _bg = Util.getImage("Monitor.Embed.bg.png");
-        private static Image _logoCPU;
-        private static readonly Image _logoGPU = Util.getImage("Monitor.Embed.logo_nvidia.png");
-        private static readonly Image _horizontalLine = Util.getImage("Monitor.Embed.hr.png");
+        const int CORE_BAR_X_LEFT = 5;
+        const int CORE_BAR_X_RIGHT = 70;
+        const int CORE_BAR_Y = 95;
+        const int CORE_BAR_Y_SPAN = 10;
+        const int CORE_BAR_WIDTH_FULL = 110;
+        const int CORE_BAR_WIDTH_HALF = 43;
+
+        private void BuildCoreProgressBar()
+        {
+            int x = CORE_BAR_X_LEFT;
+            int y = CORE_BAR_Y;
+            if (_cpu.CoreCnt <= 8)
+            {
+                for (int i = 0; i < _cpu.CoreCnt; i++)
+                {
+                    _cpuCoreBars[i] = new CoreProgressBar(i, CORE_BAR_WIDTH_FULL, x, y, _fntLabel);
+                    y += CORE_BAR_Y_SPAN;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _cpu.CoreCnt; i++)
+                {
+                    _cpuCoreBars[i] = new CoreProgressBar(i, CORE_BAR_WIDTH_HALF, x, y, _fntLabel);
+                    y += CORE_BAR_Y_SPAN;
+                    if(i == 7)
+                    {
+                        x = CORE_BAR_X_RIGHT;
+                        y = CORE_BAR_Y;
+                    }
+                }
+            }
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -95,21 +115,16 @@ namespace Monitor.GUI
 
         private void DrawCPU(Graphics g)
         {
+            // total
             g.DrawImageUnscaled(_logoCPU, 5, 5);
             g.DrawString("CPU Usage", _fntTitle, Brushes.White, 40, 5);
             g.DrawString(((uint)_cpu.LoadTotal).ToString() + "%", _fntUsage, Brushes.White, 115, 18);
-
             _cpuBar.draw(g, (uint)_cpu.LoadTotal);
             g.DrawString(_cpu.Name, _fntLabel, Brushes.Gold, 2, 40);
 
-            string pct;
             for (int i = 0; i < _cpu.CoreCnt; i++)
             {
-                g.DrawString((i + 1).ToString(), _fntLabel, Brushes.White, 10, (95 + i * 10));
-                _cpuCoreBars[i].draw(g, (uint)_cpu.LoadCores[i]);
-                pct = (_cpu.LoadCores[i] > 10) ? ((uint)_cpu.LoadCores[i]).ToString(): "  " + ((uint)_cpu.LoadCores[i]).ToString();
-                pct += "%";
-                g.DrawString(pct, _fntLabel, Brushes.White, 114, (95 + i * 10));
+                _cpuCoreBars[i].Draw((uint)_cpu.LoadCores[i], g);
             }
         }
 
@@ -158,8 +173,7 @@ namespace Monitor.GUI
             }
         }
 
-        private void mouseMoveHandler(object sender,
-            System.Windows.Forms.MouseEventArgs e)
+        private void mouseMoveHandler(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             if ((e.Button & MouseButtons.Left) == MouseButtons.Left)
             {
